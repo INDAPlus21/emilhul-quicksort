@@ -1,16 +1,13 @@
-use std::io::{self, BufRead};
-
+use std::{io::{self, Read}};
 
 fn qsort(arr: &mut Vec::<isize>, low: usize, high: usize) {
     if low < high {
         match (low..high).len() {
-            x if x <= 8 => insertion_sort(arr, low, high), // Looking around it seems like the optimal cut-off is somewhere between 4-16.
+            x if x <= 24 => insertion_sort(arr, low, high), // Looking around it seems like the optimal cut-off is somewhere between 4-16.
             _ => {
                 let pivot = partition(arr, low, high);
 
-                eprintln!("======== {} - {} ========", low, pivot);
                 qsort(arr, low, pivot); // Smaller
-                eprintln!("======== {} - {} ========", pivot+1, high);
                 qsort(arr, pivot+1, high); // Above
             }
         }
@@ -40,7 +37,6 @@ fn partition(arr: &mut Vec::<isize>, low: usize, high: usize) -> usize {
         if a as usize >= b { return b }
 
         arr.swap(a as usize, b);
-        eprintln!("Swapped {}, {}, {:?}", arr[b], arr[a as usize], arr);
     }
 }
 
@@ -60,7 +56,7 @@ fn main() {
     let mut line = String::with_capacity(500_000);
     io::stdin()
         .lock()
-        .read_line(&mut line)
+        .read_to_string(&mut line)
         .expect("Failed to read string");
 
     let mut values: Vec<isize> = line
@@ -74,7 +70,12 @@ fn main() {
         qsort(&mut values, 0, length-1);
     }
 
-    println!("{:?}", values);
+    let mut line = String::with_capacity(length);
+    for value in values {
+        line.push_str(&value.to_string());
+        line.push(' '); // A teeny tiny bit faster according to https://github.com/hoodie/concatenation_benchmarks-rs
+    }
+    print!("{}", line)
 }
 
 #[cfg(test)]
