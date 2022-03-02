@@ -1,21 +1,34 @@
 use std::{io::{self, Read}};
 
-fn qsort(arr: &mut Vec::<isize>, low: usize, high: usize) {
-    if low < high {
-        match (low..high).len() {
-            x if x <= 24 => insertion_sort(arr, low, high), // Looking around it seems like the optimal cut-off is somewhere between 4-16.
+fn qsort(arr: &mut Vec::<isize>, mut low: usize, mut high: usize) {
+    while low < high {
+        match high - low {
+            x if x <= 24 => {
+                insertion_sort(arr, low, high); // Looking around it seems like the optimal cut-off is somewhere between 4-16.
+                break;
+            },
             _ => {
-                let pivot = partition(arr, low, high);
+                let pivot = hoare_partition(arr, low, high);
 
-                qsort(arr, low, pivot); // Smaller
-                qsort(arr, pivot+1, high); // Above
+                if pivot - low < high - pivot {
+                    qsort(arr, low, pivot);
+                    low = pivot + 1;
+                } else {
+                    qsort(arr, pivot + 1, high); // Above
+                    high = pivot + 1;
+                }
             }
         }
     }
 }
 
-fn partition(arr: &mut Vec::<isize>, low: usize, high: usize) -> usize {
-    let pivot: isize = arr[(low + high) / 2];
+fn hoare_partition(arr: &mut Vec::<isize>, low: usize, high: usize) -> usize {
+    let pivot: isize = if low < high / 3 && high-low > 1000 { 
+        ninther(arr, low, high)
+    } else {
+        let median = median_of_three(arr, low, high);
+        arr[median]
+    };
 
     let mut a: isize = low as isize - 1;
     let mut b = high + 1;
@@ -38,6 +51,37 @@ fn partition(arr: &mut Vec::<isize>, low: usize, high: usize) -> usize {
 
         arr.swap(a as usize, b);
     }
+}
+
+fn ninther(arr: &mut Vec::<isize>, low: usize, high: usize) -> isize {
+    let first = median_of_three(arr, low, high/3) as usize;
+    let second = median_of_three(arr, high/3, 2*high/3) as usize;
+    let third = median_of_three(arr, 2*high/3, high) as usize;
+    
+    if arr[second] < arr[first] {
+        arr.swap(first, second);
+    }
+    if arr[third] < arr[first] {
+        arr.swap(first, third);
+    }
+    if arr[second] > arr[third] {
+        arr.swap(second, third);
+    }
+    arr[second]
+}
+
+fn median_of_three(arr: &mut Vec::<isize>, low: usize, high: usize) -> usize {
+    let mid = (low + high) / 2;
+    if arr[mid] < arr[low] {
+        arr.swap(low, mid);
+    }
+    if arr[high] < arr[low] {
+        arr.swap(low, high);
+    }
+    if arr[mid] > arr[high] {
+        arr.swap(mid, high);
+    }
+    mid
 }
 
 fn insertion_sort(arr: &mut Vec<isize>, low: usize, high: usize) {
