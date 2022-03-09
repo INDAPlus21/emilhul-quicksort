@@ -72,7 +72,7 @@ fn ninther(arr: &mut Vec::<isize>, low: usize, high: usize) -> isize {
 }
 
 fn median_of_three(arr: &mut Vec::<isize>, low: usize, high: usize) -> usize {
-    let mid = (low + high) / 2;
+    let mid = low + (high - low) / 2;
     if arr[mid] < arr[low] {
         arr.swap(low, mid);
     }
