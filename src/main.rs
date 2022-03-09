@@ -4,7 +4,7 @@ fn qsort(arr: &mut Vec::<isize>, mut low: usize, mut high: usize) {
     while low < high {
         match high - low {
             x if x <= 24 => {
-                insertion_sort(arr, low, high); // Looking around it seems like the optimal cut-off is somewhere between 4-16.
+                insertion_sort(arr, low, high);
                 break;
             },
             _ => {
@@ -14,7 +14,7 @@ fn qsort(arr: &mut Vec::<isize>, mut low: usize, mut high: usize) {
                     qsort(arr, low, pivot);
                     low = pivot + 1;
                 } else {
-                    qsort(arr, pivot + 1, high); // Above
+                    qsort(arr, pivot + 1, high);
                     high = pivot + 1;
                 }
             }
@@ -23,7 +23,7 @@ fn qsort(arr: &mut Vec::<isize>, mut low: usize, mut high: usize) {
 }
 
 fn hoare_partition(arr: &mut Vec::<isize>, low: usize, high: usize) -> usize {
-    let pivot: isize = if low < high / 3 && high-low > 1000 { 
+    let pivot: isize = if low < high / 3 && high-low > 128 { 
         ninther(arr, low, high)
     } else {
         let median = median_of_three(arr, low, high);
@@ -53,6 +53,7 @@ fn hoare_partition(arr: &mut Vec::<isize>, low: usize, high: usize) -> usize {
     }
 }
 
+// Get the madian of three of the medains fo three from first third, second third, and third third
 fn ninther(arr: &mut Vec::<isize>, low: usize, high: usize) -> isize {
     let first = median_of_three(arr, low, high/3) as usize;
     let second = median_of_three(arr, high/3, 2*high/3) as usize;
@@ -120,69 +121,4 @@ fn main() {
         line.push(' '); // A teeny tiny bit faster according to https://github.com/hoodie/concatenation_benchmarks-rs
     }
     print!("{}", line)
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn it_works() {
-        assert_eq!(2+2, 4);
-    }
-
-    #[test]
-    fn qsort_only_duplicate() {
-        let answer = vec![1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
-        let mut arr = vec![1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
-        
-        let length = arr.len();
-        qsort(&mut arr, 0, length-1);
-
-        assert_eq!(answer, arr);
-    }
-
-    #[test]
-    fn qsort_duplicate() {
-        let answer = vec![1, 2, 2, 4, 5, 6, 7, 7, 9, 10];
-        let mut arr =vec![2, 1, 5, 7, 2, 6, 10, 9, 7, 4];
-
-        let length = arr.len();
-        qsort(&mut arr, 0, length-1);
-
-        assert_eq!(answer, arr);
-    }
-
-    #[test]
-    fn qsort_sorted() {
-        let answer = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-        let mut arr = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-
-        let length = arr.len();
-        qsort(&mut arr, 0, length-1);
-
-        assert_eq!(answer, arr);
-    }
-
-    #[test]
-    fn qsort_reverse() {
-        let answer = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-        let mut arr = vec![10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
-
-        let length = arr.len();
-        qsort(&mut arr, 0, length-1);
-
-        assert_eq!(answer, arr);
-    }
-
-    #[test]
-    fn qsort_random() {
-        let answer = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-        let mut arr = vec![2, 7, 5, 4, 1, 3, 6, 8, 10, 9];
-
-        let length = arr.len();
-        qsort(&mut arr, 0, length-1);
-
-        assert_eq!(answer, arr);
-    }
 }
